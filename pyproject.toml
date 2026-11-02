@@ -1,0 +1,39 @@
+[project]
+name = "typed-registry"
+version = "0.1.0"
+description = "A tiny, fully typed service registry for Python application composition"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Denis Maciel", email = "denispmaciel@gmail.com" }]
+requires-python = ">=3.14"
+dependencies = []
+keywords = ["dependency-injection", "service-locator", "registry", "typing", "composition-root"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[project.urls]
+Homepage = "https://github.com/denismaciel/typed-registry"
+Repository = "https://github.com/denismaciel/typed-registry"
+Issues = "https://github.com/denismaciel/typed-registry/issues"
+
+[dependency-groups]
+dev = ["pytest>=8", "mypy>=1.15", "ty>=0.0.1a1"]
+
+[build-system]
+requires = ["uv-build>=0.10,<0.13"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["*_test.py"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
