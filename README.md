@@ -27,9 +27,7 @@ service it names, so:
 ## Install
 
 ```sh
-uv add typed-registry
-# or
-pip install typed-registry
+uv add typed-registry==0.1.1
 ```
 
 Requires Python 3.14+.
@@ -125,10 +123,63 @@ Some deliberate non-features:
 ## Development
 
 ```sh
-uv sync
-uv run pytest
-uv run mypy
-uv run ty check src tests
+make dev            # uv sync --locked
+make check          # mypy and ty
+make test           # pytest
+make build          # uv build --no-sources
+make release-check  # build and test installed wheel + sdist
+```
+
+Use uv 0.12.4. Development dependencies are pinned in `uv.lock`; packaging uses
+`uv_build==0.12.4`. CI runs the same commands on Python 3.14 and 3.15.
+
+## Releases
+
+Releases are published to PyPI and GitHub. To prepare a release, update `project.version` in
+`pyproject.toml`, run `uv lock`, and run:
+
+```sh
+make dev check test
+RELEASE_TAG=v0.1.1 make release-check  # use the new version
+```
+
+`release-check` rejects a mismatched tag before building. It builds with
+`uv build --no-sources`, installs the wheel and sdist separately in temporary
+virtual environments outside the checkout, and checks package metadata,
+`py.typed`, and registry behavior. Verified wheel/sdist files, `SHA256SUMS`, and
+a hashed `index.html` are written to `dist/release/` (replacing its prior contents).
+Without `RELEASE_TAG`, the check uses the version from `pyproject.toml`.
+
+Commit the version and lockfile, then push a matching `vVERSION` tag. The release
+workflow runs CI on that exact commit, repeats distribution verification, and
+creates a draft GitHub release with the verified assets before publishing it.
+Versions use `X.Y.Z` or `X.Y.ZaN`, `X.Y.ZbN`, or `X.Y.ZrcN`. Alpha, beta, and
+release-candidate tags publish as prereleases without changing the latest release.
+Existing releases are never overwritten. If publication fails after creating the
+draft, inspect that draft and its assets before manually finishing or deleting it.
+A manual workflow dispatch builds and uploads Actions artifacts only; it never
+publishes a release.
+
+After GitHub publication, a separate `pypi` environment job publishes only the
+verified wheel and sdist to PyPI using Trusted Publishing and attestations. That
+job never checks out or executes project code and has no repository write access.
+Both publishers require a `v*` tag push in the canonical repository; the tagged
+commit must be reachable from the default branch fetched from origin. Manual
+workflow dispatch cannot publish. Checkout credentials are not persisted, and
+release/CI dependency caching is disabled.
+
+Configure the PyPI Trusted Publisher for owner `denismaciel`, repository
+`typed-registry`, workflow `release.yml`, and environment `pypi`. Restrict that
+GitHub environment to release tags and protect the default branch and release
+tags. No PyPI API token is needed. If PyPI publication fails after GitHub
+publication, rerun only the failed PyPI job; do not replace the GitHub release or
+reuse a published PyPI version.
+
+Once release assets are published, use that release's versioned wheel index
+(replace the example version with the published version):
+
+```sh
+uv add --no-index --find-links https://github.com/denismaciel/typed-registry/releases/download/v0.1.1/index.html typed-registry==0.1.1
 ```
 
 ## License

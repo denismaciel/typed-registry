@@ -1,6 +1,6 @@
 [project]
 name = "typed-registry"
-version = "0.1.0"
+version = "0.1.1"
 description = "A tiny, fully typed service registry for Python application composition"
 readme = "README.md"
 license = "MIT"
@@ -27,7 +27,7 @@ Issues = "https://github.com/denismaciel/typed-registry/issues"
 dev = ["pytest>=8", "mypy>=1.15", "ty>=0.0.1a1"]
 
 [build-system]
-requires = ["uv-build>=0.10,<0.13"]
+requires = ["uv_build==0.12.4"]
 build-backend = "uv_build"
 
 [tool.pytest.ini_options]
